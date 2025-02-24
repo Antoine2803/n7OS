@@ -1,3 +1,7 @@
 *.pdf
 *.o
 kernel.bin
+*.gdb*
+.vscode
+.vscode/*
+peda-*
