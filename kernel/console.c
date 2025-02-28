@@ -19,16 +19,16 @@ void init_console() {
  */
 void scroll() {
     //On copie les 24 dernieres lignes sur les 24 premières
-    for(int i = 0; i < 24; i++) {
-        for(int j = 0; j < 80; j++) {
-            int posN = 80*i+j;
-            int posO = 80*(i+1)+j;
+    for(int i = 0; i < VGA_HEIGHT -1; i++) {
+        for(int j = 0; j < VGA_WIDTH; j++) {
+            int posN = VGA_WIDTH*i+j;
+            int posO = VGA_WIDTH*(i+1)+j;
             scr_tab[posN] = scr_tab[posO]; 
         }
     }
     // On libère la derniere ligne
-    for(int j = 0; j < 80; j++) {
-        int pos = 80*24+j;
+    for(int j = 0; j < VGA_WIDTH; j++) {
+        int pos = VGA_WIDTH*(VGA_HEIGHT -1)+j;
         scr_tab[pos] = CHAR_COLOR<<8|' ';
     }
 }
@@ -38,11 +38,11 @@ void scroll() {
  * Calcule la position du curseur
  */
 void compute_pos() {
-    if(colonne == 80) {
+    if(colonne == VGA_WIDTH) {
         ligne++;
         colonne = 0;
     }
-    if (ligne == 25) {
+    if (ligne == VGA_HEIGHT) {
         scroll();
         ligne--;
     }
@@ -52,7 +52,7 @@ void compute_pos() {
  * Affiche le curseur à la bonne position
  */
 void set_cursor() {
-    int pos = 80 * ligne + colonne;
+    int pos = VGA_WIDTH * ligne + colonne;
     outb(0xF,PORT_CMD);
     outb(pos&255,PORT_DATA);
     outb(0xE,PORT_CMD);
@@ -66,7 +66,7 @@ void clear_screen() {
     ligne = 0;
     colonne = 0;
     // On affiche des espaces partout
-    for(int i = 0; i < 80*25; i++) {
+    for(int i = 0; i < VGA_WIDTH*VGA_HEIGHT; i++) {
         console_putchar(' ');
     }
     ligne = 0;
@@ -79,7 +79,7 @@ void clear_screen() {
 void tab() {
     for(int i = 0; i < 4; i++) {
         // Permet d'éviter que la tabulation continue sur la ligne suivante
-        if (colonne == 79) {
+        if (colonne == VGA_WIDTH - 1) {
             console_putchar(' ');
             break;
         }
@@ -88,7 +88,7 @@ void tab() {
 }
 
 void console_putchar(const char c) {
-    int pos = 80 * ligne + colonne;
+    int pos = VGA_WIDTH * ligne + colonne;
     if ((31 < c) && (c < 127)) {
         scr_tab[pos]= CHAR_COLOR<<8|c;
         colonne++;
@@ -99,17 +99,17 @@ void console_putchar(const char c) {
             scr_tab[pos-1]= CHAR_COLOR<<8|' ';
         }
     }
-    if (c == 9) {
+    if (c == 9) { //tab
         tab();
     }
-    if (c == 10) {
+    if (c == 10) { //retour à la ligne
         ligne++;
         colonne = 0;
     }
-    if (c == 12) {
+    if (c == 12) { // Vider l'écran
         clear_screen();
     }
-    if (c == 13) {
+    if (c == 13) { // retour au début de la ligne
         colonne = 0;
     }
     compute_pos();
