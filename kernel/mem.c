@@ -15,11 +15,10 @@ uint32_t page_bitmap_table[SIZE_BITMAP_TABLE];
  */
 void setPage(uint32_t addr)
 {
-    int index = addr / 32;
-    int offset = addr % 32;
-    int value = 1 << offset;
+    uint32_t index = addr / PAGE_SIZE;
+    uint32_t offset = index % 32;
 
-    page_bitmap_table[index] |= value;
+    page_bitmap_table[index/32] |= 1 << offset;
 }
 
 /**
@@ -31,11 +30,10 @@ void setPage(uint32_t addr)
  */
 void clearPage(uint32_t addr)
 {
-    int index = addr / 32;
-    int offset = addr % 32;
-    int value = ~(1 << offset);
+    uint32_t index = addr / PAGE_SIZE;
+    uint32_t offset = index % 32;
 
-    page_bitmap_table[index] &= value;
+    page_bitmap_table[index / 32] &= ~(1 << offset);
 }
 
 /**
@@ -77,9 +75,15 @@ void print_mem()
 {
     for (int i = 0; i < SIZE_BITMAP_TABLE; i++)
     {
+        if (i % 7 == 0)
+        {
+            printf("  ");
+        }
+
         printf("0x%08x ", page_bitmap_table[i]);
 
-        if ((i + 1)% 7 == 0) {
+        if ((i + 1) % 7 == 0)
+        {
             printf("\n");
         }
     }

@@ -23,9 +23,14 @@
 #define PAGE_SIZE 0x1000
 
 /**
+ * @brief Taille d'une page en mémoire en bits
+ */
+#define PAGE_SIZE_BITS PAGE_SIZE*8
+
+/**
  * @brief Nombre de page en mémoire physique
  */
-#define NB_PAGE_MEM (LAST_MEMORY_INDEX / PAGE_SIZE)
+#define NB_PAGE_MEM ((LAST_MEMORY_INDEX + 1) / PAGE_SIZE)
 
 /**
  * @brief Taille de la bitmap
