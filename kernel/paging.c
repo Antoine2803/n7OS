@@ -1,5 +1,6 @@
 #include <n7OS/paging.h>
 #include <n7OS/kheap.h>
+#include <stdio.h>
 #include <n7OS/mem.h>
 #include <stddef.h> // nécessaire pour NULL
 
@@ -7,20 +8,19 @@ PageDirectory page_dir;
 
 void initialise_paging()
 {
-
     init_mem();
 
-    page_dir = (PageDirectory)kmalloc_a(PAGE_SIZE_BITS);
+    page_dir = (PageDirectory)kmalloc_a(PAGE_SIZE);
 
-    for (uint32_t index = 0; index < PAGE_SIZE_BITS / sizeof(PDE); index++)
+    for (uint32_t index = 0; index < PAGE_SIZE / sizeof(PDE) ; index++)
     {
-        page_dir[index].P = 1;
+        page_dir[index].P = PRESENT;
         page_dir[index].U = 0;
         page_dir[index].W = 1;
-        page_dir[index].addr = kmalloc_a(PAGE_SIZE_BITS) >> 12;
+        page_dir[index].addr = kmalloc_a(PAGE_SIZE) >> 12;
     }
 
-    for (uint32_t i = 0; i < get_stack_top(); i += PAGE_SIZE)
+    for (uint32_t i = 0x0; i < get_stack_top(); i += PAGE_SIZE)
     {
         alloc_page_entry(i, 1, 1);
     }
@@ -35,7 +35,7 @@ void initialise_paging()
 
     cr0 |= 0x80000001;
 
-    __asm__ __volatile__("mov %%cr0, %0" :: "r"(cr0));
+    __asm__ __volatile__("mov %%cr0, %0" ::"r"(cr0));
 }
 
 PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
@@ -43,14 +43,15 @@ PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
     virtual_addr virtual_address;
     virtual_address.value = address;
 
-    PageTable pgtab = (PageTable)page_dir[virtual_address.indice_rep].addr;
+    PageTable pgtab = (PageTable)(page_dir[virtual_address.indice_rep].addr << 12);
+    PTE pte = pgtab[virtual_address.indice_table];
 
-    pgtab[virtual_address.indice_table].P = 1;
-    pgtab[virtual_address.indice_table].W = 1;
-    pgtab[virtual_address.indice_table].U = 0;
-    pgtab[virtual_address.indice_table].addr = address >> 12;
+    pte.P = PRESENT;
+    pte.W = is_writeable;
+    pte.U = ~is_kernel;
 
-    setPage(address);
+    uint32_t phy_addr = findfreePage();
+    pte.addr = phy_addr >> 12;
 
     return pgtab;
 }

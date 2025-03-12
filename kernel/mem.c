@@ -15,7 +15,7 @@ uint32_t page_bitmap_table[SIZE_BITMAP_TABLE];
  */
 void setPage(uint32_t addr)
 {
-    uint32_t index = addr / PAGE_SIZE;
+    uint32_t index = addr >> 12;
     uint32_t offset = index % 32;
 
     page_bitmap_table[index/32] |= 1 << offset;
@@ -30,7 +30,7 @@ void setPage(uint32_t addr)
  */
 void clearPage(uint32_t addr)
 {
-    uint32_t index = addr / PAGE_SIZE;
+    uint32_t index = addr >> 12;
     uint32_t offset = index % 32;
 
     page_bitmap_table[index / 32] &= ~(1 << offset);
@@ -43,16 +43,18 @@ void clearPage(uint32_t addr)
  */
 uint32_t findfreePage()
 {
-    for (int addr = 0; addr < NB_PAGE_MEM; addr++)
+    for (uint32_t page_index = 0; page_index < NB_PAGE_MEM; page_index++)
     {
-        int index = addr / 32;
-        int offset = index % 32;
+        uint32_t index = page_index / 32;
+        uint32_t offset = page_index % 32;
         uint32_t current = page_bitmap_table[index];
-        if ((current & (1 << (offset))) == 0)
-            return addr;
+        if (!(current & (1 << (offset)))) {
+            setPage(page_index << 12);
+            return page_index << 12;
+        }
     }
 
-    return LAST_MEMORY_INDEX;
+    return -1;
 }
 
 /**
