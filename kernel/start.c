@@ -19,9 +19,10 @@ void kernel_start(void)
     
     initialise_paging();
 
-    
-    printf("Hello world!");
+    print_mem();
 
+    uint64_t * p = (uint64_t *)0xa0000000;
+    p++;
 
     // on ne doit jamais sortir de kernel_start
     while (1)

@@ -7,6 +7,8 @@
 
 #include <inttypes.h>
 
+#define PRESENT 1;
+
 /*         Table de page         */
 
 /**
@@ -54,7 +56,7 @@ typedef union
      */
     struct
     {
-        uint32_t addr : 20; // Adresse de la page
+        uint32_t addr : 20; // Adresse de la page table
         uint16_t RSVD : 9;  // Reserve
         uint8_t U : 1;      // Mode
         uint8_t W : 1;      // Accéssibilité
