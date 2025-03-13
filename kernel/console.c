@@ -1,5 +1,6 @@
 #include <n7OS/console.h>
 #include <n7OS/cpu.h>
+#include <stdio.h>
 
 uint16_t *scr_tab;
 
@@ -13,6 +14,7 @@ void init_console()
     scr_tab = (uint16_t *)SCREEN_ADDR;
     ligne = 0;
     colonne = 0;
+    printf("\f");
 }
 
 /**

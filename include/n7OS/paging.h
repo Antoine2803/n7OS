@@ -9,38 +9,6 @@
 
 #define PRESENT 1;
 
-/*         Table de page         */
-
-/**
- * @brief Une entrée dans la table de page peut être manipulée en utilisant
- *        la structure page_table_entry_t ou directement la valeur
- */
-typedef union
-{
-    /**
-     * @brief Description d'une ligne de la table de page
-     *
-     */
-    struct
-    {
-        uint32_t addr : 20; // Adresse de la page
-        uint8_t AVAIL : 3;  //
-        uint8_t RSVD2 : 2;  // Réservé
-        uint8_t D : 1;      // Dirty
-        uint8_t A : 1;      // Accessed
-        uint8_t RSVD1 : 2;  // Réservé
-        uint8_t U : 1;      // Mode
-        uint8_t W : 1;      // Accéssibilité
-        uint8_t P : 1;      // Présence
-    };
-    uint32_t value;
-} PTE; // PTE = Page Table Entry
-
-/**
- * @brief Une table de page (PageTable) est un tableau de descripteurs de page
- *
- */
-typedef PTE *PageTable;
 
 /*         Répertoire de page         */
 
@@ -56,11 +24,11 @@ typedef union
      */
     struct
     {
+        uint32_t P : 1;      // Présence
+        uint32_t W : 1;      // Accéssibilité
+        uint32_t U : 1;      // Mode
+        uint32_t RSVD : 9;  // Reserve
         uint32_t addr : 20; // Adresse de la page table
-        uint16_t RSVD : 9;  // Reserve
-        uint8_t U : 1;      // Mode
-        uint8_t W : 1;      // Accéssibilité
-        uint8_t P : 1;      // Présence
     };
     uint32_t value;
 } PDE; // PDE = Page Directory Entry
@@ -71,6 +39,40 @@ typedef union
  */
 typedef PDE *PageDirectory;
 
+
+/*         Table de page         */
+
+/**
+ * @brief Une entrée dans la table de page peut être manipulée en utilisant
+ *        la structure page_table_entry_t ou directement la valeur
+ */
+typedef union
+{
+    /**
+     * @brief Description d'une ligne de la table de page
+     *
+     */
+    struct
+    {
+        uint32_t P : 1;      // Présence
+        uint32_t W : 1;      // Accéssibilité
+        uint32_t U : 1;      // Mode
+        uint32_t RSVD1 : 2;  // Réservé
+        uint32_t A : 1;      // Accessed
+        uint32_t D : 1;      // Dirty
+        uint32_t RSVD2 : 2;  // Réservé
+        uint32_t AVAIL : 3;  //
+        uint32_t addr : 20; // Adresse de la page
+    };
+    uint32_t value;
+} PTE; // PTE = Page Table Entry
+
+/**
+ * @brief Une table de page (PageTable) est un tableau de descripteurs de page
+ *
+ */
+typedef PTE *PageTable;
+
 typedef union
 {
     /**
@@ -78,9 +80,9 @@ typedef union
      */
     struct
     {
-        uint16_t indice_page : 12;
-        uint16_t indice_table : 10;
-        uint16_t indice_rep : 10;
+        uint32_t indice_page : 12;
+        uint32_t indice_table : 10;
+        uint32_t indice_rep : 10;
     };
     uint32_t value;
 } virtual_addr;
