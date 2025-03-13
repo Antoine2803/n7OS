@@ -11,18 +11,11 @@ void kernel_start(void)
 {
     init_kheap();
     init_console();
-    printf("\f");
-    setup_base(0 /* la memoire virtuelle n'est pas encore definie */);
-
-    // lancement des interruptions
-    sti();
+    
     
     initialise_paging();
 
     print_mem();
-
-    uint64_t * p = (uint64_t *)0xa0000000;
-    p++;
 
     // on ne doit jamais sortir de kernel_start
     while (1)

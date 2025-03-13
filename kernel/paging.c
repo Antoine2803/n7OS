@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <n7OS/mem.h>
 #include <stddef.h> // nécessaire pour NULL
+#include <n7OS/processor_structs.h>
 
 PageDirectory page_dir;
 
@@ -26,16 +27,18 @@ void initialise_paging()
     }
 
     // Mise à jour du registre CR3
-    __asm__ __volatile__("mov %0, %%cr3" ::"r"(&page_dir));
+    __asm__ __volatile__("mov %0, %%cr3" ::"r"(page_dir));
 
-    uint32_t cr0;
+    uint64_t cr0;
 
     // Lancer le paging
-    __asm__ __volatile__("mov %0, %%cr0" : "=r"(cr0));
+    __asm__ __volatile__("mov %%cr0, %0 " : "=r"(cr0));
 
-    cr0 |= 0x80000001;
+    cr0 |= 0x80000000;
 
-    __asm__ __volatile__("mov %%cr0, %0" ::"r"(cr0));
+    __asm__ __volatile__("mov %0, %%cr0" ::"r"(cr0));
+
+    setup_base((uint32_t)page_dir);
 }
 
 PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
@@ -43,15 +46,14 @@ PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
     virtual_addr virtual_address;
     virtual_address.value = address;
 
-    PageTable pgtab = (PageTable)(page_dir[virtual_address.indice_rep].addr << 12);
-    PTE pte = pgtab[virtual_address.indice_table];
+    PDE pde = page_dir[virtual_address.indice_rep];
+    PageTable pt = (PageTable)(pde.addr << 12);
+    PTE *pte = &pt[virtual_address.indice_table];
 
-    pte.P = PRESENT;
-    pte.W = is_writeable;
-    pte.U = ~is_kernel;
+    pte->P = PRESENT;
+    pte->W = is_writeable;
+    pte->U = ~is_kernel;
+    pte->addr = findfreePage() >> 12;
 
-    uint32_t phy_addr = findfreePage();
-    pte.addr = phy_addr >> 12;
-
-    return pgtab;
+    return pt;
 }
