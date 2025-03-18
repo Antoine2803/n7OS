@@ -6,15 +6,22 @@
 #include <n7OS/paging.h>
 #include <n7OS/kheap.h>
 #include <stdio.h>
+#include <n7OS/handler.h>
 
 void kernel_start(void)
 {
     init_kheap();
     init_console();
     
-    
     initialise_paging();
 
+    //lancement des intéruptions
+    sti();
+    
+    init_handlers();
+    
+    __asm__("int $50");
+    
     print_mem();
 
     // on ne doit jamais sortir de kernel_start

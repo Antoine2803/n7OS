@@ -5,6 +5,11 @@
 #include <n7OS/segment.h>
 #include <n7OS/processor_structs.h>
 
+#define PRESENT_ENTRY 0b10000000
+#define DPL 0b00000000
+#define INT_GATE_TRAP_GATE 0b00000000
+#define INT32_GATE 0b00001110
+
 /*
 Une entrée dans l'IDT est sur 64 bits
 
