@@ -1,4 +1,5 @@
 #include <n7OS/console.h>
+#include <n7OS/handler.h>
 #include <n7OS/cpu.h>
 #include <stdio.h>
 
@@ -9,12 +10,16 @@ int ligne;
 // Colonne courante de l'écran
 int colonne;
 
+extern uint32_t curr_time;
+
 void init_console()
 {
     scr_tab = (uint16_t *)SCREEN_ADDR;
-    ligne = 0;
+    ligne = 1;
     colonne = 0;
-    printf("\f");
+    clear_screen(1);
+    console_putheader();
+    console_puttime();
 }
 
 /**
@@ -23,7 +28,7 @@ void init_console()
 void scroll()
 {
     // On copie les 24 dernieres lignes sur les 24 premières
-    for (int i = 0; i < VGA_HEIGHT - 1; i++)
+    for (int i = 1; i < VGA_HEIGHT - 1; i++)
     {
         for (int j = 0; j < VGA_WIDTH; j++)
         {
@@ -72,12 +77,14 @@ void set_cursor()
 /**
  * Vide l'écran
  */
-void clear_screen()
+void clear_screen(int full)
 {
-    ligne = 0;
+    ligne = 1;
+    if (full)
+        ligne = 0;
     colonne = 0;
     // On affiche des espaces partout
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
+    for (int i = 0; i < VGA_WIDTH * (VGA_HEIGHT - (1 - full)); i++)
     {
         console_putchar(' ');
     }
@@ -99,6 +106,24 @@ void tab()
             break;
         }
         console_putchar(' ');
+    }
+}
+
+void console_putheader() {
+    for(int i = 0; i<VGA_WIDTH; i++) {
+        scr_tab[i] = HEADER_CHAR_COLOR << 8 | 0;
+    }
+}
+
+void console_puttime()
+{
+    char header[16];
+
+    sprintf(header, "AntOS - %02d:%02d:%02d", ((curr_time / 1000) / 60) / 60, ((curr_time % 3600000) / 1000) / 60, (curr_time % 60000) / 1000);
+
+    for (int col = 0; col < HEADER_SIZE; col++)
+    {
+        scr_tab[col] = HEADER_CHAR_COLOR << 8 | header[col];
     }
 }
 
@@ -129,7 +154,7 @@ void console_putchar(const char c)
     }
     if (c == 12)
     { // Vider l'écran
-        clear_screen();
+        clear_screen(0);
     }
     if (c == 13)
     { // retour au début de la ligne
