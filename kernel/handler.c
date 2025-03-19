@@ -1,4 +1,5 @@
 #include <n7OS/handler.h>
+#include <n7OS/console.h>
 #include <n7OS/irq.h>
 #include <n7OS/cpu.h>
 #include <stdio.h>
@@ -27,25 +28,8 @@ void handler_IT_32_C()
     // Affichier le timer
     if (curr_time % 1000 == 0)
     {
-        printf("time: h:%d ", ((curr_time / 1000) / 60) / 60);
-
-        if (((curr_time % 3600000) / 1000) / 60 >= 0 && ((curr_time % 3600000) / 1000) / 60 <= 9)
-        {
-            printf("m:0%d ",((curr_time % 3600000) / 1000) / 60);
-        }
-        else
-        {
-            printf("m:%d ", ((curr_time % 3600000) / 1000) / 60);
-        }
-
-        if ((curr_time % 60000) / 1000 >= 0 && (curr_time % 60000) / 1000 <= 9)
-        {
-            printf("s:0%d\n", (curr_time % 60000) / 1000);
-        }
-        else
-        {
-            printf("s:%d\n", (curr_time % 60000) / 1000);
-        }
+        console_puttime();
     }
+
     outb(0x20, 0x20);
 }

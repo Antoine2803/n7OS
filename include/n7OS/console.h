@@ -37,10 +37,24 @@
 #define TEXT    BLACK 
 #define CHAR_COLOR (BLINK|BACK|TEXT)
 
+
+#define HEADER_SIZE 16
+#define HEADER_BLINK   (0<<7)
+#define HEADER_BACK    (D_GRAY<<4)
+#define HEADER_TEXT    WHITE 
+#define HEADER_CHAR_COLOR (HEADER_BLINK|HEADER_BACK|HEADER_TEXT)
+
 void init_console();
 
 void console_putchar(const char c);
 
+/**
+ * vide l'écran
+ */
+void clear_screen(int full);
+
+void console_puttime();
+void console_putheader();
 
 /*
  * This is the function called by printf to send its output to the screen. You
