@@ -12,14 +12,16 @@
 void kernel_start(void)
 {
     init_kheap();
-    init_console();
-
+    
     initialise_paging();
-
+    
     // lancement des intéruptions
     sti();
+    
     init_timer();
     init_handlers();
+    
+    init_console();
 
     __asm__("int $50");
 
