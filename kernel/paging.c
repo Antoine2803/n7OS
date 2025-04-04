@@ -13,7 +13,7 @@ void initialise_paging()
 
     page_dir = (PageDirectory)kmalloc_a(PAGE_SIZE);
 
-    for (uint32_t index = 0; index < PAGE_SIZE / sizeof(PDE) ; index++)
+    for (uint32_t index = 0; index < PAGE_SIZE / sizeof(PDE); index++)
     {
         page_dir[index].P = PRESENT;
         page_dir[index].U = 0;

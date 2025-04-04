@@ -18,7 +18,7 @@ void setPage(uint32_t addr)
     uint32_t index = addr >> 12;
     uint32_t offset = index % 32;
 
-    page_bitmap_table[index/32] |= 1 << offset;
+    page_bitmap_table[index / 32] |= 1 << offset;
 }
 
 /**
@@ -48,7 +48,8 @@ uint32_t findfreePage()
         uint32_t index = page_index / 32;
         uint32_t offset = page_index % 32;
         uint32_t current = page_bitmap_table[index];
-        if (!(current & (1 << (offset)))) {
+        if (!(current & (1 << (offset))))
+        {
             setPage(page_index << 12);
             return page_index << 12;
         }

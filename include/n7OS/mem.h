@@ -25,7 +25,7 @@
 /**
  * @brief Taille d'une page en mémoire en bits
  */
-#define PAGE_SIZE_BITS PAGE_SIZE*8
+#define PAGE_SIZE_BITS PAGE_SIZE * 8
 
 /**
  * @brief Nombre de page en mémoire physique

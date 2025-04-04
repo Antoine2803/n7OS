@@ -112,8 +112,10 @@ void tab()
 /**
  * Affiche le header vide
  */
-void console_putheader() {
-    for(int i = 0; i<VGA_WIDTH; i++) {
+void console_putheader()
+{
+    for (int i = 0; i < VGA_WIDTH; i++)
+    {
         scr_tab[i] = HEADER_CHAR_COLOR << 8 | 0;
     }
 }
@@ -125,7 +127,7 @@ void console_puttime()
 {
     char header[16];
 
-    sprintf(header, "AntOS - %02d:%02d:%02d", (((curr_time%(3600000*24)) / 1000) / 60) / 60, ((curr_time % 3600000) / 1000) / 60, (curr_time % 60000) / 1000);
+    sprintf(header, "AntOS - %02d:%02d:%02d", (((curr_time % (3600000 * 24)) / 1000) / 60) / 60, ((curr_time % 3600000) / 1000) / 60, (curr_time % 60000) / 1000);
 
     for (int col = 0; col < HEADER_SIZE; col++)
     {
