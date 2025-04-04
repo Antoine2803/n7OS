@@ -22,6 +22,7 @@ void kernel_start(void)
 
     init_timer();
     init_handlers();
+    init_syscall();
 
     init_console();
 
@@ -29,14 +30,11 @@ void kernel_start(void)
 
     print_mem();
 
-    init_syscall();
 
     alloc_page_entry(0xa000FFF8, 1, 1);
     uint32_t *ptr = (uint32_t *)0xa000FFFc;
     uint32_t test = *ptr;
     test++;
-
-    
 
     // on ne doit jamais sortir de kernel_start
     while (1)
