@@ -9,7 +9,6 @@
 
 #define PRESENT 1;
 
-
 /*         Répertoire de page         */
 
 /**
@@ -24,9 +23,9 @@ typedef union
      */
     struct
     {
-        uint32_t P : 1;      // Présence
-        uint32_t W : 1;      // Accéssibilité
-        uint32_t U : 1;      // Mode
+        uint32_t P : 1;     // Présence
+        uint32_t W : 1;     // Accéssibilité
+        uint32_t U : 1;     // Mode
         uint32_t RSVD : 9;  // Reserve
         uint32_t addr : 20; // Adresse de la page table
     };
@@ -38,7 +37,6 @@ typedef union
  *
  */
 typedef PDE *PageDirectory;
-
 
 /*         Table de page         */
 
@@ -54,14 +52,14 @@ typedef union
      */
     struct
     {
-        uint32_t P : 1;      // Présence
-        uint32_t W : 1;      // Accéssibilité
-        uint32_t U : 1;      // Mode
-        uint32_t RSVD1 : 2;  // Réservé
-        uint32_t A : 1;      // Accessed
-        uint32_t D : 1;      // Dirty
-        uint32_t RSVD2 : 2;  // Réservé
-        uint32_t AVAIL : 3;  //
+        uint32_t P : 1;     // Présence
+        uint32_t W : 1;     // Accéssibilité
+        uint32_t U : 1;     // Mode
+        uint32_t RSVD1 : 2; // Réservé
+        uint32_t A : 1;     // Accessed
+        uint32_t D : 1;     // Dirty
+        uint32_t RSVD2 : 2; // Réservé
+        uint32_t AVAIL : 3; //
         uint32_t addr : 20; // Adresse de la page
     };
     uint32_t value;

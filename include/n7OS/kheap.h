@@ -15,7 +15,7 @@ void init_kheap();
 /**
  * récupère le pointeur de la pile
  */
-uint32_t get_stack_top(); 
+uint32_t get_stack_top();
 
 /**
  * @brief Alloue une zone mémoire de taille sz. C'est une version simplifiée de kmalloc().
