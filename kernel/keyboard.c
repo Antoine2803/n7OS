@@ -1,11 +1,12 @@
 #include <n7OS/keyboard.h>
 
-void init_keyboard() {
-
+void init_keyboard()
+{
 }
 
-char kgetch() {
-    char c= '\0';
+char kgetch()
+{
+    char c = '\0';
 
     return c;
 }

@@ -32,7 +32,7 @@ uint32_t find_pid()
 
 uint32_t is_proc(uint32_t proc_index)
 {
-    uint32_t index = proc_index/32;
+    uint32_t index = proc_index / 32;
     uint32_t offset = proc_index % 32;
     uint32_t res = (proc_bitmap_table[index] & (1 << offset)) >> offset == 1;
     return res;
