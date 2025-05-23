@@ -90,4 +90,5 @@ void print_mem()
             printf("\n");
         }
     }
+    printf("\n");
 }

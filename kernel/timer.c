@@ -31,3 +31,4 @@ void init_timer()
     // lancement de l'IT timer
     outb(inb(0x21) & 0xfe, 0x21);
 }
+

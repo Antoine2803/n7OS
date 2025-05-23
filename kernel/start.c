@@ -10,6 +10,36 @@
 #include <n7OS/timer.h>
 #include <unistd.h>
 #include <n7OS/sys.h>
+#include <n7OS/process.h>
+
+extern void processus1();
+
+void idle()
+{
+    printf("idle\n");
+    while (1)
+    {
+        hlt();
+    }
+}
+
+void proc2()
+{
+    while (1)
+    {
+        printf("proc2\n");
+        // schedule();
+    }
+}
+
+void proc1()
+{
+    while (1)
+    {
+        printf("proc1\n");
+        // schedule();
+    }
+}
 
 void kernel_start(void)
 {
@@ -30,11 +60,11 @@ void kernel_start(void)
 
     print_mem();
 
+    init_proc(idle);
+    create_proc("proc1", proc1);
+    create_proc("proc2", proc2);
 
-    alloc_page_entry(0xa000FFF8, 1, 1);
-    uint32_t *ptr = (uint32_t *)0xa000FFFc;
-    uint32_t test = *ptr;
-    test++;
+    idle();
 
     // on ne doit jamais sortir de kernel_start
     while (1)
