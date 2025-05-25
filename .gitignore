@@ -1,5 +1,6 @@
 *.pdf
 *.o
 kernel.bin
+*.bin
 *.gdb*
 peda-*

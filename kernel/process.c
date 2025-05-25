@@ -77,7 +77,7 @@ void schedule()
         stop_proc(current);
         process_table[next_proc].state = ELU;
         current_pid = next_proc;
-        printf("switching from %s (%d) to %s (%d)\n", process_table[current].name, current, process_table[next_proc].name, next_proc);
+        // printf("switching from %s (%d) to %s (%d)\n", process_table[current].name, current, process_table[next_proc].name, next_proc);
         sti();
         ctx_sw(process_table[current].regs, process_table[next_proc].regs);
     }

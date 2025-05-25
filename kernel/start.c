@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <n7OS/sys.h>
 #include <n7OS/process.h>
+#include <n7OS/keyboard.h>
 
 extern void processus1();
 
@@ -23,21 +24,13 @@ void idle()
     }
 }
 
-void proc2()
-{
-    while (1)
-    {
-        printf("proc2\n");
-        // schedule();
-    }
-}
-
 void proc1()
 {
     while (1)
     {
-        printf("proc1\n");
-        // schedule();
+        uint8_t c = kgetch();
+        if (c != 0x0)
+            printf("%c", c);
     }
 }
 
@@ -58,12 +51,10 @@ void kernel_start(void)
 
     __asm__("int $50");
 
-    print_mem();
+    init_keyboard();
 
     init_proc(idle);
-    create_proc("proc1", proc1);
-    create_proc("proc2", proc2);
-
+    create_proc("clavier", proc1);
     idle();
 
     // on ne doit jamais sortir de kernel_start

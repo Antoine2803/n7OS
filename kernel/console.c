@@ -7,8 +7,9 @@ uint16_t *scr_tab;
 
 // Ligne courante de l'écran
 int ligne;
-// Colonne courante de l'écran
-int colonne;
+
+// se souvenir de la taille de la derniere ligne remplace la colonne
+uint32_t taille_ligne[VGA_HEIGHT];
 
 extern uint32_t curr_time;
 
@@ -16,7 +17,7 @@ void init_console()
 {
     scr_tab = (uint16_t *)SCREEN_ADDR;
     ligne = 1;
-    colonne = 0;
+    taille_ligne[ligne] = 0;
     clear_screen(1);
     console_putheader();
     console_puttime();
@@ -36,6 +37,7 @@ void scroll()
             int posO = VGA_WIDTH * (i + 1) + j;
             scr_tab[posN] = scr_tab[posO];
         }
+        taille_ligne[i] = taille_ligne[i + 1];
     }
     // On libère la derniere ligne
     for (int j = 0; j < VGA_WIDTH; j++)
@@ -43,6 +45,7 @@ void scroll()
         int pos = VGA_WIDTH * (VGA_HEIGHT - 1) + j;
         scr_tab[pos] = CHAR_COLOR << 8 | ' ';
     }
+    taille_ligne[VGA_HEIGHT - 1] = 0;
 }
 
 /**
@@ -50,10 +53,10 @@ void scroll()
  */
 void compute_pos()
 {
-    if (colonne == VGA_WIDTH)
+    if (taille_ligne[ligne] == VGA_WIDTH)
     {
         ligne++;
-        colonne = 0;
+        taille_ligne[ligne] = 0;
     }
     if (ligne == VGA_HEIGHT)
     {
@@ -67,7 +70,7 @@ void compute_pos()
  */
 void set_cursor()
 {
-    int pos = VGA_WIDTH * ligne + colonne;
+    int pos = VGA_WIDTH * ligne + taille_ligne[ligne];
     outb(CMD_LOW, PORT_CMD);
     outb(pos & 255, PORT_DATA);
     outb(CMD_HIGH, PORT_CMD);
@@ -82,14 +85,14 @@ void clear_screen(int full)
     ligne = 1;
     if (full)
         ligne = 0;
-    colonne = 0;
+    taille_ligne[ligne] = 0;
     // On affiche des espaces partout
     for (int i = 0; i < VGA_WIDTH * (VGA_HEIGHT - (1 - full)); i++)
     {
         console_putchar(' ');
     }
     ligne = 0;
-    colonne = 0;
+    taille_ligne[ligne] = 0;
 }
 
 /**
@@ -100,7 +103,7 @@ void tab()
     for (int i = 0; i < 4; i++)
     {
         // Permet d'éviter que la tabulation continue sur la ligne suivante
-        if (colonne == VGA_WIDTH - 1)
+        if (taille_ligne[ligne] == VGA_WIDTH - 1)
         {
             console_putchar(' ');
             break;
@@ -137,18 +140,27 @@ void console_puttime()
 
 void console_putchar(const char c)
 {
-    int pos = VGA_WIDTH * ligne + colonne;
+    int pos = VGA_WIDTH * ligne + taille_ligne[ligne];
     if ((31 < c) && (c < 127))
     {
         scr_tab[pos] = CHAR_COLOR << 8 | c;
-        colonne++;
+        taille_ligne[ligne]++;
     }
     if (c == 8)
     {
-        if (colonne > 0)
+        if (taille_ligne[ligne] > 0)
         {
-            colonne--;
+            taille_ligne[ligne]--;
             scr_tab[pos - 1] = CHAR_COLOR << 8 | ' ';
+        }
+        else
+        {
+            if (ligne > 1)
+            {
+                taille_ligne[ligne] = VGA_WIDTH - 1;
+                scr_tab[pos - 1] = CHAR_COLOR << 8 | ' ';
+                ligne--;
+            }
         }
     }
     if (c == 9)
@@ -158,7 +170,7 @@ void console_putchar(const char c)
     if (c == 10)
     { // retour à la ligne
         ligne++;
-        colonne = 0;
+        taille_ligne[ligne] = 0;
     }
     if (c == 12)
     { // Vider l'écran
@@ -166,7 +178,7 @@ void console_putchar(const char c)
     }
     if (c == 13)
     { // retour au début de la ligne
-        colonne = 0;
+        taille_ligne[ligne] = 0;
     }
     compute_pos();
 }

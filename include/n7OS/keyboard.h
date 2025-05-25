@@ -3,6 +3,9 @@
 
 #include <inttypes.h>
 
+// Buffer du clavier
+#define BUFFER_SIZE 128
+
 // Keyboard ports
 #define KEYB_ENCODER 0x60
 #define KEYB_CONTROLLER 0x64
@@ -113,7 +116,7 @@ enum KEYCODE
 	KEY_Y = 'Y',
 	KEY_Z = 'Z',
 
-	KEY_RETURN = '\r',
+	KEY_RETURN = '\n',
 	KEY_ESCAPE = 0x1001,
 	KEY_BACKSPACE = '\b',
 
