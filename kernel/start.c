@@ -57,6 +57,13 @@ void kernel_start(void)
     // Test du handler IT 50
     __asm__("int $50");
 
+    // Test de la pagination
+    alloc_page_entry(0xa00FFFF8, 1, 1);
+    uint32_t *ptr = (uint32_t *)0xa00FFFFc;
+    uint32_t test = *ptr;
+    test++;
+    print_mem();
+
     // Initialisation des processus
     init_proc(idle);
     create_proc("minishell", minishell);

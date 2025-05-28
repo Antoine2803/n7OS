@@ -54,7 +54,7 @@ PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
     PageTable pt = (PageTable)(pde.addr << 12);
     PTE *pte = &pt[virtual_address.indice_table];
 
-    // On repli la page table avec les 
+    // On repli la page table avec les
     pte->P = PRESENT;
     pte->W = is_writeable;
     pte->U = ~is_kernel;
