@@ -3,10 +3,11 @@
 #include <n7OS/handler.h>
 #include <stdio.h>
 
-extern uint32_t curr_time;
+uint32_t curr_time;
 
 void init_timer()
 {
+    // Récuperer l'horloge du bios pour etre à l'heure
     outb(0x0, CMOS_ADDRESS);
     unsigned char second = inb(CMOS_DATA);
     outb(0x2, CMOS_ADDRESS);
@@ -17,7 +18,7 @@ void init_timer()
     minute = (minute & 0x0F) + ((minute / 16) * 10);
     hour = (hour & 0x0F) + ((hour / 16) * 10);
 
-    curr_time = curr_time + hour * 60 * 60 * 1000 + minute * 60 * 1000 + second * 1000;
+    curr_time = hour * 60 * 60 * 1000 + minute * 60 * 1000 + second * 1000;
 
     uint32_t frequence = 1190;
 

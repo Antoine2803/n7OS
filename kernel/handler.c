@@ -4,13 +4,17 @@
 #include <n7OS/cpu.h>
 #include <n7OS/process.h>
 #include <n7OS/keyboard.h>
+#include <n7OS/timer.h>
 #include <stdio.h>
 
 extern void handler_IT_50();
 extern void handler_IT_32();
 extern void handler_IT_33();
 
-uint32_t curr_time = 0;
+/**
+ * Temps du timer
+ */
+extern uint32_t curr_time;
 
 // On récupère le buffer du clavier
 extern uint8_t buffer_key[BUFFER_SIZE];
@@ -31,7 +35,9 @@ void handler_IT_50_C()
     printf("\nint 50 catched succcesfully\n");
 }
 
-// Gestion IT 32 -> Timer
+/**
+ * Gestion IT 32 -> Timer
+ */
 void handler_IT_32_C()
 {
     outb(0x20, 0x20); // ACK IRQ0
@@ -48,9 +54,14 @@ void handler_IT_32_C()
     }
 }
 
+/**
+ * Retient si la touche shift est pressé
+ */
 int shift_pressed = 0;
 
-// Gestion IT 33 -> Clavier
+/**
+ * Gestion IT 33 -> Clavier
+ */
 void handler_IT_33_C()
 {
     // On récupère le code de la touche
@@ -58,7 +69,6 @@ void handler_IT_33_C()
 
     shift_pressed = key_code == SHIFT_PRESSED ? 1 : key_code == SHIFT_RELEASED ? 0
                                                                                : shift_pressed;
-
     uint8_t c = shift_pressed == 1 ? scancode_map_shift[key_code] : scancode_map[key_code];
 
     if (key_code & 0x80)

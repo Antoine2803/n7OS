@@ -34,6 +34,8 @@ uint32_t is_proc();
 
 uint32_t get_pid();
 
+void print_process();
+
 void init_proc(void *main);
 
 void schedule();

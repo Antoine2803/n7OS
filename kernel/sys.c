@@ -9,9 +9,11 @@ extern void handler_syscall();
 
 void init_syscall()
 {
-  // ajout de la fonction de traitement de l'appel systeme
+  // ajout de la fonction de traitement de l'appel systeme d'exemple
   add_syscall(NR_example, sys_example);
+  // ajout de la fonction de traitement de l'appel systeme shutdown
   add_syscall(NR_shutdown, sys_shutdown);
+  // ajout de la fonction de traitement de l'appel systeme write
   add_syscall(NR_write, sys_write);
 
   // initialisation de l'IT soft qui gère les appels systeme

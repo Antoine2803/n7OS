@@ -7,6 +7,9 @@
 
 PageDirectory page_dir;
 
+/**
+ * Initialise le paging
+ */
 void initialise_paging()
 {
     init_mem();
@@ -46,10 +49,12 @@ PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel)
     virtual_addr virtual_address;
     virtual_address.value = address;
 
+    // On récupère la page table correspondante à l'adresse
     PDE pde = page_dir[virtual_address.indice_rep];
     PageTable pt = (PageTable)(pde.addr << 12);
     PTE *pte = &pt[virtual_address.indice_table];
 
+    // On repli la page table avec les 
     pte->P = PRESENT;
     pte->W = is_writeable;
     pte->U = ~is_kernel;

@@ -3,54 +3,102 @@
 #include <malloc.h>
 #include <stdio.h>
 
-extern void idle();
-
-uint32_t proc_bitmap_table[SIZE_BITMAP_TABLE];
-
-process_t process_table[NB_PROC_MAX];
-
-uint32_t current_pid;
-
 extern void ctx_sw(void *ctx_old, void *ctx_new);
 
+/**
+ * Bitmap qui retient les emplacements des processus dans la table des processus
+ */
+uint32_t proc_bitmap_table[SIZE_BITMAP_TABLE];
+
+/**
+ * Table des processus
+ */
+process_t process_table[NB_PROC_MAX];
+
+/**
+ * PID du processus en cours d'execution
+ */
+uint32_t current_pid;
+
+/**
+ * Récupère le premier pid dans la bitmap qui est libre et l'alloue
+ */
 uint32_t find_pid()
 {
-    for (uint32_t proc_index = 0; proc_index < NB_PROC_MAX + 1; proc_index++)
+    for (uint32_t pid = 0; pid < NB_PROC_MAX + 1; pid++)
     {
-        uint32_t index = proc_index / 32;
-        uint32_t offset = proc_index % 32;
+        uint32_t index = pid / 32;
+        uint32_t offset = pid % 32;
         uint32_t current = proc_bitmap_table[index];
         if (!(current & (1 << (offset))))
         {
             proc_bitmap_table[index] |= 1 << offset;
-            return proc_index;
+            return pid;
         }
     }
-
     return -1;
 }
 
-uint32_t is_proc(uint32_t proc_index)
+/**
+ * Teste si il y a un processus à l'adresse pid dans la table des processus
+ */
+uint32_t is_proc(uint32_t pid)
 {
-    uint32_t index = proc_index / 32;
-    uint32_t offset = proc_index % 32;
+    uint32_t index = pid / 32;
+    uint32_t offset = pid % 32;
     uint32_t res = (proc_bitmap_table[index] & (1 << offset)) >> offset == 1;
     return res;
 }
 
-void clear_pid(uint32_t proc_index)
+/**
+ * Affiche les processus de la table des processus
+ */
+void print_process()
 {
-    uint32_t index = proc_index;
+    printf("  PID\t\t\tState \t\t\tName\n");
+
+    for (int i = 0; i < NB_PROC_MAX; i++)
+    {
+        if (is_proc(i))
+        {
+            if (process_table[i].state == ELU)
+            {
+                printf(" - %d\t\t\t ELU   \t\t\t%s\n", i, process_table[i].name);
+            }
+            else if (process_table[i].state == PRET)
+            {
+                printf(" - %d\t\t\t PRET  \t\t\t%s\n", i, process_table[i].name);
+            }
+            else if (process_table[i].state == BLOQUE)
+            {
+                printf(" - %d\t\t\t BLOQUE\t\t\t%s\n", i, process_table[i].name);
+            }
+        }
+    }
+}
+
+/**
+ * Libère le processus de pid pid
+ */
+void clear_pid(uint32_t pid)
+{
+    uint32_t index = pid;
     uint32_t offset = index % 32;
 
     proc_bitmap_table[index / 32] &= ~(1 << offset);
 }
 
+/**
+ * Renvoie le pid de la fonction en cours d'execution
+ */
 uint32_t get_pid()
 {
     return current_pid;
 }
 
+/**
+ * Prépare la bitmap et met le processus 0 (idle) à ELU
+ */
 void init_proc(void *main)
 {
     for (int i = 0; i < SIZE_BITMAP_TABLE; i++)
@@ -62,6 +110,10 @@ void init_proc(void *main)
     current_pid = pid;
 }
 
+/**
+ * Fonction qui permet de context switch entre les process
+ * Simple round robin sur les process de la process table
+ */
 void schedule()
 {
     uint32_t current = get_pid();
@@ -83,6 +135,9 @@ void schedule()
     }
 }
 
+/**
+ * Crée un processus de nom name et d'adresse main
+ */
 uint32_t create_proc(char *name, void *main)
 {
     PROCESS_ID pid = find_pid();
@@ -98,23 +153,51 @@ uint32_t create_proc(char *name, void *main)
     return pid;
 }
 
+/**
+ * Termine un processus
+ */
 void terminate_proc(PROCESS_ID pid)
 {
-    if (is_proc(pid))
+    if (pid == get_pid())
+    {
+        printf("Cannot kill current process\n");
+    }
+    else if (is_proc(pid))
     {
         free((void *)process_table[pid].regs[1]);
         clear_pid(pid);
     }
 }
 
+/**
+ * Stoppe le processus de pid pid
+ */
 void stop_proc(PROCESS_ID pid)
 {
-    if (is_proc(pid))
+    if (is_proc(pid) && process_table[pid].state == ELU)
     {
         process_table[pid].state = PRET;
     }
 }
 
-void block_proc(PROCESS_ID pid);
+/**
+ * Bloque le processus de pid pid
+ */
+void block_proc(PROCESS_ID pid)
+{
+    if (is_proc(pid) && process_table[pid].state == PRET)
+    {
+        process_table[pid].state = BLOQUE;
+    }
+}
 
-void unblock_proc(PROCESS_ID pid);
+/**
+ * Débloque le processus de pid pid
+ */
+void unblock_proc(PROCESS_ID pid)
+{
+    if (is_proc(pid) && process_table[pid].state == BLOQUE)
+    {
+        process_table[pid].state = PRET;
+    }
+}

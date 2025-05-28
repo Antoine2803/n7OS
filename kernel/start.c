@@ -1,6 +1,7 @@
 #include <n7OS/cpu.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
 #include <n7OS/processor_structs.h>
 #include <n7OS/console.h>
 #include <n7OS/mem.h>
@@ -10,21 +11,24 @@
 #include <n7OS/timer.h>
 #include <unistd.h>
 #include <n7OS/sys.h>
+#include <n7OS/minishell.h>
 #include <n7OS/process.h>
 #include <n7OS/keyboard.h>
 
 extern void processus1();
 
+// Le process 0
 void idle()
 {
-    printf("idle\n");
+    printf("Process 0 launched\n");
     while (1)
     {
         hlt();
     }
 }
 
-void proc1()
+// Un process pour tester le clavier
+void simple_writer()
 {
     while (1)
     {
@@ -40,21 +44,25 @@ void kernel_start(void)
 
     initialise_paging();
 
+    init_timer();
+    init_keyboard();
+    init_handlers();
     // lancement des intéruptions
     sti();
 
-    init_timer();
-    init_handlers();
     init_syscall();
 
     init_console();
 
+    // Test du handler IT 50
     __asm__("int $50");
 
-    init_keyboard();
-
+    // Initialisation des processus
     init_proc(idle);
-    create_proc("clavier", proc1);
+    create_proc("minishell", minishell);
+    // create_proc("clavier", simple_writer);
+
+    // Fin de l'initialisation des processus
     idle();
 
     // on ne doit jamais sortir de kernel_start

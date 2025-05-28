@@ -19,6 +19,9 @@ void init_keyboard()
     }
 }
 
+/**
+ * Récupère les caractères du buffer rempli par les intéruption clavier
+ */
 char kgetch()
 {
     if (buffer_head != buffer_tail)

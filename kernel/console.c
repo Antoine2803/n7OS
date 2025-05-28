@@ -1,5 +1,5 @@
 #include <n7OS/console.h>
-#include <n7OS/handler.h>
+#include <n7OS/timer.h>
 #include <n7OS/cpu.h>
 #include <stdio.h>
 
@@ -8,9 +8,12 @@ uint16_t *scr_tab;
 // Ligne courante de l'écran
 int ligne;
 
-// se souvenir de la taille de la derniere ligne remplace la colonne
+// Se souvenir de la taille de la derniere ligne remplace la "colonne"
 uint32_t taille_ligne[VGA_HEIGHT];
 
+/**
+ * Temps du timer
+ */
 extern uint32_t curr_time;
 
 void init_console()
@@ -55,6 +58,7 @@ void compute_pos()
 {
     if (taille_ligne[ligne] == VGA_WIDTH)
     {
+        taille_ligne[ligne]--;
         ligne++;
         taille_ligne[ligne] = 0;
     }
@@ -91,7 +95,7 @@ void clear_screen(int full)
     {
         console_putchar(' ');
     }
-    ligne = 0;
+    ligne = 1 - full;
     taille_ligne[ligne] = 0;
 }
 
@@ -138,37 +142,39 @@ void console_puttime()
     }
 }
 
+/**
+ * Traite le caractère c
+ */
 void console_putchar(const char c)
 {
     int pos = VGA_WIDTH * ligne + taille_ligne[ligne];
     if ((31 < c) && (c < 127))
-    {
+    { // Si c'est un caractère affichable on le fait
         scr_tab[pos] = CHAR_COLOR << 8 | c;
         taille_ligne[ligne]++;
     }
     if (c == 8)
-    {
+    { // Supprimer le dernier caractère
         if (taille_ligne[ligne] > 0)
         {
             taille_ligne[ligne]--;
             scr_tab[pos - 1] = CHAR_COLOR << 8 | ' ';
         }
         else
-        {
+        { // Si il n'y a plus de caractères sur la ligne on remonte à celle du dessus
             if (ligne > 1)
             {
-                taille_ligne[ligne] = VGA_WIDTH - 1;
                 scr_tab[pos - 1] = CHAR_COLOR << 8 | ' ';
                 ligne--;
             }
         }
     }
     if (c == 9)
-    { // tab
+    { // Tab
         tab();
     }
     if (c == 10)
-    { // retour à la ligne
+    { // Retour à la ligne
         ligne++;
         taille_ligne[ligne] = 0;
     }
@@ -177,17 +183,22 @@ void console_putchar(const char c)
         clear_screen(0);
     }
     if (c == 13)
-    { // retour au début de la ligne
+    { // Retour au début de la ligne
         taille_ligne[ligne] = 0;
     }
     compute_pos();
 }
 
+/**
+ * Affiche la suite de caractères s de taille len dans la console
+ */
 void console_putbytes(const char *s, int len)
 {
     for (int i = 0; i < len; i++)
     {
+        // On affiche le caractère
         console_putchar(s[i]);
+        // On déplace le curseur en fonction
         set_cursor();
     }
 }
